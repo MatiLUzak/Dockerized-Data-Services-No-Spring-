@@ -1,8 +1,10 @@
 package org.example.model;
 
+import org.bson.types.ObjectId;
 import org.example.exceptions.WoluminException;
 
 public class Wolumin {
+    private ObjectId id;
     private String wydawnictwo;
     private String jezyk;
     private String tytul;
@@ -22,6 +24,14 @@ public class Wolumin {
         this.tytul = tytul;
     }
     public Wolumin() {}
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
 
     public String getWydawnictwo() {
         return wydawnictwo;
