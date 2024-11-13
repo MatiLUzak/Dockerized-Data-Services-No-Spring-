@@ -13,6 +13,7 @@ public class Czasopismo extends Wolumin {
         }
         this.nrWydania = nrWydania;
     }
+    public Czasopismo() {}
 
     public String getNrWydania() {
         return nrWydania;

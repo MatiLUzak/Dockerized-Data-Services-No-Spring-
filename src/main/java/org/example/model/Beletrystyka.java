@@ -8,6 +8,8 @@ public class Beletrystyka extends Ksiazka{
     private String przedziałWiekowy;
     private String rodzaj;
 
+    public Beletrystyka() {}
+
     public Beletrystyka(String wydawnictwo, String jezyk, String tytul, List<String> autor, String przedział_wiekowy, String rodzaj) {
         super(wydawnictwo, jezyk, tytul, autor);
         if(przedział_wiekowy==null||przedział_wiekowy.isEmpty())

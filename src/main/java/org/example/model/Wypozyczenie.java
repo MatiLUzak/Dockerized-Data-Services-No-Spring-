@@ -26,6 +26,7 @@ public class Wypozyczenie {
         this.dataOd = LocalDateTime.now();  // Ustawienie daty początkowej na teraz
         //this.uuid = UUID.randomUUID();  // Generowanie UUID
     }
+    public Wypozyczenie() {}
 
     // Gettery
     public Wypozyczajacy getWypozyczajacy() {

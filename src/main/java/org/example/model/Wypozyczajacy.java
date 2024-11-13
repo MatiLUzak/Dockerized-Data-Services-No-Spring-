@@ -29,6 +29,7 @@ public class Wypozyczajacy {
         this.adres = adres;
         //this.uuid = UUID.randomUUID();
     }
+    public Wypozyczajacy() {}
 
     /*public UUID getUuid() {
         return uuid;

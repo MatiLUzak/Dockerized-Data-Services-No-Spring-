@@ -12,6 +12,7 @@ public class Uczen extends TypWypozyczajacy {
         }
         this.nrSemestru = nrSemestru;
     }
+    public Uczen() {}
 
     public String getNrSemestru() {
         return nrSemestru;

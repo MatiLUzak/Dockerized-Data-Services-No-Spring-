@@ -21,6 +21,7 @@ public class Wolumin {
         this.jezyk = jezyk;
         this.tytul = tytul;
     }
+    public Wolumin() {}
 
     public String getWydawnictwo() {
         return wydawnictwo;

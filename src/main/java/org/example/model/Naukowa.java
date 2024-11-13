@@ -20,6 +20,7 @@ public class Naukowa extends Ksiazka{
         this.dział = dział;
 
     }
+    public Naukowa(){}
 
     public String getRecenzja() {
         return recenzja;

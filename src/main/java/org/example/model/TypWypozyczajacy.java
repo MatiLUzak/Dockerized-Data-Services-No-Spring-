@@ -21,6 +21,7 @@ public class TypWypozyczajacy {
         this.maxDlWypoz = maxDlWypoz;
         this.maksLKsiazek = maksLKsiazek;
     }
+    public TypWypozyczajacy() {}
 
     public double getKara() {
         return kara;

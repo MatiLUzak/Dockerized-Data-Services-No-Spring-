@@ -12,6 +12,7 @@ public class Nauczyciel extends TypWypozyczajacy {
         }
         this.tytul = tytul;
     }
+    public Nauczyciel() {}
 
     public String getTytul() {
         return tytul;

@@ -12,6 +12,7 @@ public class Pozostali extends TypWypozyczajacy {
         }
         this.zawod = zawod;
     }
+    public Pozostali() {}
 
     public String getZawod() {
         return zawod;

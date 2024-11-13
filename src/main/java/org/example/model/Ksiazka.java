@@ -16,6 +16,7 @@ public class Ksiazka extends Wolumin{
         this.autor = autor;
 
     }
+    public Ksiazka() {}
 
     public List<String> getAutor() {
         return autor;
