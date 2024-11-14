@@ -1,6 +1,8 @@
 package org.example.model;
 
+import org.bson.types.ObjectId;
 import org.example.exceptions.WypozyczenieException;
+import java.util.Date;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -11,6 +13,7 @@ public class Wypozyczenie {
     private Wolumin wolumin;
     private LocalDateTime dataOd;
     private LocalDateTime dataDo;
+    private ObjectId id;
     //private UUID uuid;
 
     // Konstruktor z walidacją
@@ -45,6 +48,17 @@ public class Wypozyczenie {
         return dataDo;
     }
 
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setDataOd(LocalDateTime dataOd) {
+        this.dataOd = dataOd;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
     /*public UUID getUuid() {
         return uuid;
     }*/

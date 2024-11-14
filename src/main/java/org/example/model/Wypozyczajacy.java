@@ -1,5 +1,6 @@
 package org.example.model;
 
+import org.bson.types.ObjectId;
 import org.example.exceptions.WypozyczajacyException;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ public class Wypozyczajacy {
     private String nazwa;
     private LocalDate dataUr;
     private String adres;
+    private ObjectId id;
     //private UUID uuid;
 
     public Wypozyczajacy(TypWypozyczajacy typWypozyczajacy, String nazwa, LocalDate dataUr, String adres) {
@@ -35,6 +37,14 @@ public class Wypozyczajacy {
         return uuid;
     }
      */
+
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
 
     public TypWypozyczajacy getTypWypozyczajacy() {
         return typWypozyczajacy;

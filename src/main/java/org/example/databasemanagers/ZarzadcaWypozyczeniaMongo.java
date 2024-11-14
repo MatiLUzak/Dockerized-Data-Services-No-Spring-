@@ -9,17 +9,19 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.types.ObjectId;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import org.example.databaserepository.WoluminMongoRepository;
-import org.example.model.Wolumin;
+import org.example.databaserepository.WypozyczenieMongoRepository;
+import org.example.model.Wypozyczenie;
 
 import static org.bson.codecs.configuration.CodecRegistries.*;
 
-public class ZarzadcaWoluminu {
+public class ZarzadcaWypozyczeniaMongo {
+
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final WoluminMongoRepository woluminCollection;
+    private final WypozyczenieMongoRepository wypozyczenieCollection;
 
-    public ZarzadcaWoluminu() {
+    public ZarzadcaWypozyczeniaMongo() {
+        // Connection configuration
         ConnectionString connectionString = new ConnectionString("mongodb://mongodb1:27017," +
                 "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single");
         MongoCredential credentials = MongoCredential.createCredential(
@@ -39,33 +41,37 @@ public class ZarzadcaWoluminu {
         this.mongoClient = MongoClients.create(settings);
         this.database = mongoClient.getDatabase("CarSystem");
 
-        this.woluminCollection = new WoluminMongoRepository(
-                database.getCollection("woluminy", Wolumin.class)
+        this.wypozyczenieCollection = new WypozyczenieMongoRepository(
+                database.getCollection("wypozyczenia", Wypozyczenie.class)
         );
     }
 
-    public WoluminMongoRepository getWoluminCollection() {
-        return woluminCollection;
+    public WypozyczenieMongoRepository getWypozyczenieCollection() {
+        return wypozyczenieCollection;
     }
 
-    public void dodajWolumin(Wolumin wolumin) {
-        woluminCollection.dodaj(wolumin);
+    public void dodajWypozyczenie(Wypozyczenie wypozyczenie) {
+        wypozyczenieCollection.dodaj(wypozyczenie);
     }
 
-    public Wolumin znajdzWolumin(ObjectId id) {
-        return woluminCollection.znajdzPoId(id);
+    public Wypozyczenie znajdzWypozyczenie(ObjectId id) {
+        return wypozyczenieCollection.znajdzPoId(id);
     }
 
-    public void zaktualizujWolumin(ObjectId id, Wolumin updatedWolumin) {
-        woluminCollection.zaktualizuj(id, updatedWolumin);
+    public void zaktualizujWypozyczenie(ObjectId id, Wypozyczenie updatedWypozyczenie) {
+        wypozyczenieCollection.zaktualizuj(id, updatedWypozyczenie);
     }
 
-    public void usunWolumin(ObjectId id) {
-        woluminCollection.usun(id);
+    public void usunWypozyczenie(ObjectId id) {
+        wypozyczenieCollection.usun(id);
     }
 
-    public Wolumin znajdzPoTytule(String tytul) {
-        return woluminCollection.znajdzPoTytule(tytul);
+    public double obliczKare(ObjectId id) {
+        Wypozyczenie wypozyczenie = wypozyczenieCollection.znajdzPoId(id);
+        if (wypozyczenie == null) {
+            throw new RuntimeException("Nie znaleziono wypożyczenia");
+        }
+        return wypozyczenie.obliczKare();
     }
 
     public void zamknijPolaczenie() {

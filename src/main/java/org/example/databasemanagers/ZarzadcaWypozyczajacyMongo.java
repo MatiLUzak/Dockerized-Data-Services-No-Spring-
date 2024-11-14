@@ -9,17 +9,17 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.types.ObjectId;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import org.example.databaserepository.WoluminMongoRepository;
-import org.example.model.Wolumin;
+import org.example.databaserepository.WypozyczajacyMongoRepository;
+import org.example.model.Wypozyczajacy;
 
 import static org.bson.codecs.configuration.CodecRegistries.*;
 
-public class ZarzadcaWoluminu {
+public class ZarzadcaWypozyczajacyMongo {
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final WoluminMongoRepository woluminCollection;
+    private final WypozyczajacyMongoRepository wypozyczajacyCollection;
 
-    public ZarzadcaWoluminu() {
+    public ZarzadcaWypozyczajacyMongo() {
         ConnectionString connectionString = new ConnectionString("mongodb://mongodb1:27017," +
                 "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single");
         MongoCredential credentials = MongoCredential.createCredential(
@@ -39,33 +39,29 @@ public class ZarzadcaWoluminu {
         this.mongoClient = MongoClients.create(settings);
         this.database = mongoClient.getDatabase("CarSystem");
 
-        this.woluminCollection = new WoluminMongoRepository(
-                database.getCollection("woluminy", Wolumin.class)
+        this.wypozyczajacyCollection = new WypozyczajacyMongoRepository(
+                database.getCollection("wypozyczajacy", Wypozyczajacy.class)
         );
     }
 
-    public WoluminMongoRepository getWoluminCollection() {
-        return woluminCollection;
+    public WypozyczajacyMongoRepository getWypozyczajacyCollection() {
+        return wypozyczajacyCollection;
     }
 
-    public void dodajWolumin(Wolumin wolumin) {
-        woluminCollection.dodaj(wolumin);
+    public void dodajWypozyczajacy(Wypozyczajacy wypozyczajacy) {
+        wypozyczajacyCollection.dodaj(wypozyczajacy);
     }
 
-    public Wolumin znajdzWolumin(ObjectId id) {
-        return woluminCollection.znajdzPoId(id);
+    public Wypozyczajacy znajdzWypozyczajacy(ObjectId id) {
+        return wypozyczajacyCollection.znajdzPoId(id);
     }
 
-    public void zaktualizujWolumin(ObjectId id, Wolumin updatedWolumin) {
-        woluminCollection.zaktualizuj(id, updatedWolumin);
+    public void zaktualizujWypozyczajacy(ObjectId id, Wypozyczajacy updatedWypozyczajacy) {
+        wypozyczajacyCollection.zaktualizuj(id, updatedWypozyczajacy);
     }
 
-    public void usunWolumin(ObjectId id) {
-        woluminCollection.usun(id);
-    }
-
-    public Wolumin znajdzPoTytule(String tytul) {
-        return woluminCollection.znajdzPoTytule(tytul);
+    public void usunWypozyczajacy(ObjectId id) {
+        wypozyczajacyCollection.usun(id);
     }
 
     public void zamknijPolaczenie() {
