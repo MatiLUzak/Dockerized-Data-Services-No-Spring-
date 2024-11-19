@@ -1,8 +1,10 @@
 package org.example.model;
 
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.WoluminException;
 
 public class Czasopismo extends Wolumin {
+    @BsonProperty("nrWydania")
     private String nrWydania;
 
     public Czasopismo(String wydawnictwo, String jezyk, String tytul, String nrWydania) {

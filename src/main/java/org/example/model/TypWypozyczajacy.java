@@ -1,10 +1,14 @@
 package org.example.model;
 
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.WypozyczajacyException;
 
 public class TypWypozyczajacy {
+    @BsonProperty("kara")
     private double kara;
+    @BsonProperty("maxDlWypoz")
     private int maxDlWypoz;
+    @BsonProperty("maksLKsiazek")
     private int maksLKsiazek;
 
     public TypWypozyczajacy(double kara, int maxDlWypoz, int maksLKsiazek) {

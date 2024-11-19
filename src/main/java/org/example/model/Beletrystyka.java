@@ -1,11 +1,14 @@
 package org.example.model;
 
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.WoluminException;
 
 import java.util.List;
 
 public class Beletrystyka extends Ksiazka{
+    @BsonProperty("przedziałWiekowy")
     private String przedziałWiekowy;
+    @BsonProperty("rodzaj")
     private String rodzaj;
 
     public Beletrystyka() {}

@@ -1,8 +1,10 @@
 package org.example.model;
 
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.WypozyczajacyException;
 
 public class Pozostali extends TypWypozyczajacy {
+    @BsonProperty("zawod")
     private String zawod;
 
     public Pozostali(double kara, int maxDlWypoz, int maksLKsiazek, String zawod) {

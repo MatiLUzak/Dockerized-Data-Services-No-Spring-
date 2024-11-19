@@ -1,11 +1,14 @@
 package org.example.model;
 
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.WoluminException;
 
 import java.util.List;
 
 public class Naukowa extends Ksiazka{
+    @BsonProperty("recenzja")
     private String recenzja;
+    @BsonProperty("dział")
     private String dział;
 
     public Naukowa(String wydawnictwo, String jezyk, String tytul, List<String> autor, String recenzja, String dział) {
