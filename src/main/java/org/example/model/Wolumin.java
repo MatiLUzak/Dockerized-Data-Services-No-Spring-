@@ -1,12 +1,18 @@
 package org.example.model;
 
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 import org.example.exceptions.WoluminException;
 
 public class Wolumin {
+    @BsonId
     private ObjectId id;
+    @BsonProperty("wydawnictwo")
     private String wydawnictwo;
+    @BsonProperty("jezyk")
     private String jezyk;
+    @BsonProperty("tytul")
     private String tytul;
 
     public Wolumin(String wydawnictwo, String jezyk, String tytul) {

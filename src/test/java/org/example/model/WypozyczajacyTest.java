@@ -3,7 +3,7 @@ package org.example.model;
 import org.example.exceptions.WypozyczajacyException;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +12,8 @@ class WypozyczajacyTest {
 
     @Test
     void constructorTest() {
-        LocalDate testDate = LocalDate.of(2023, 5, 30);
+        // Tworzenie daty testowej (30 maja 2023)
+        Date testDate = new Date(123, 4, 30); // Rok 2023: 123 = 2023 - 1900, Miesiące od 0, więc maj to 4
         TypWypozyczajacy uczen = new Uczen(0.0, 30, 10, "2");
 
         Wypozyczajacy w1 = new Wypozyczajacy(uczen, "Jan Kowalski", testDate, "Kraków");
@@ -24,13 +25,14 @@ class WypozyczajacyTest {
 
         assertEquals("Marian Las", w1.getNazwa());
         assertEquals(5, w1.getTypWypozyczajacy().getMaxDlWypoz());
-        //assertNotNull(w1.getUuid());  // Sprawdzenie, czy UUID nie jest null
+        // assertNotNull(w1.getUuid());  // Sprawdzenie, czy UUID nie jest null
         assertEquals(testDate, w1.getDataUr());
     }
 
     @Test
     void setterExceptionTest() {
-        LocalDate testDate = LocalDate.of(2023, 5, 30);
+        // Tworzenie daty testowej (30 maja 2023)
+        Date testDate = new Date(123, 4, 30); // Rok 2023: 123 = 2023 - 1900, Miesiące od 0, więc maj to 4
         TypWypozyczajacy uczen = new Uczen(0.0, 30, 10, "2");
         Wypozyczajacy wypozycajacy = new Wypozyczajacy(uczen, "Jan Kowalski", testDate, "Kraków");
 

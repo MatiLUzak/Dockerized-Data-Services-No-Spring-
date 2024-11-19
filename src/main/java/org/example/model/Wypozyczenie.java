@@ -1,5 +1,9 @@
 package org.example.model;
 
+import org.bson.BsonType;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.codecs.pojo.annotations.BsonRepresentation;
 import org.bson.types.ObjectId;
 import org.example.exceptions.WypozyczenieException;
 import java.util.Date;
@@ -9,10 +13,15 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Wypozyczenie {
+    @BsonProperty("wypozyczajacy")
     private Wypozyczajacy wypozyczajacy;
+    @BsonProperty("wolumin")
     private Wolumin wolumin;
-    private LocalDateTime dataOd;
-    private LocalDateTime dataDo;
+    @BsonProperty("dataOd")
+    private Date dataOd;
+    @BsonProperty("dataDo")
+    private Date dataDo;
+    @BsonId
     private ObjectId id;
     //private UUID uuid;
 
@@ -26,7 +35,7 @@ public class Wypozyczenie {
         }
         this.wypozyczajacy = wypozyczajacy;
         this.wolumin = wolumin;
-        this.dataOd = LocalDateTime.now();  // Ustawienie daty początkowej na teraz
+        this.dataOd = new Date();  // Ustawienie daty początkowej na teraz
         //this.uuid = UUID.randomUUID();  // Generowanie UUID
     }
     public Wypozyczenie() {}
@@ -40,11 +49,11 @@ public class Wypozyczenie {
         return wolumin;
     }
 
-    public LocalDateTime getDataOd() {
+    public Date getDataOd() {
         return dataOd;
     }
 
-    public LocalDateTime getDataDo() {
+    public Date getDataDo() {
         return dataDo;
     }
 
@@ -52,8 +61,12 @@ public class Wypozyczenie {
         return id;
     }
 
-    public void setDataOd(LocalDateTime dataOd) {
+    public void setDataOd(Date dataOd) {
         this.dataOd = dataOd;
+    }
+
+    public void setDataDo(Date dataDo) {
+        this.dataDo = dataDo;
     }
 
     public void setId(ObjectId id) {
@@ -80,7 +93,7 @@ public class Wypozyczenie {
 
     // Zakończenie wypożyczenia - ustawienie daty zwrotu
     public void koniecWypozyczenia() {
-        this.dataDo = LocalDateTime.now();
+        this.dataDo = new Date();
     }
 
     // Obliczanie długości wypożyczenia w dniach
@@ -88,8 +101,8 @@ public class Wypozyczenie {
         if (dataDo == null) {
             return 0;
         }
-        Duration duration = Duration.between(dataOd, dataDo);
-        return (double) duration.toDays();
+        long diff = dataDo.getTime() - dataOd.getTime();
+        return diff / (1000.0 * 60 * 60 * 24);
     }
 
     // Obliczanie kary na podstawie długości wypożyczenia

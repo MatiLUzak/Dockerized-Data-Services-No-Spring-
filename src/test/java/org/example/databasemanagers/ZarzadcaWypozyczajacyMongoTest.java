@@ -6,7 +6,7 @@ import org.example.model.TypWypozyczajacy;
 import org.example.model.Wypozyczajacy;
 import org.junit.jupiter.api.*;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +33,8 @@ class ZarzadcaWypozyczajacyMongoTest {
     @Test
     void testDodajWypozyczajacy() {
         TypWypozyczajacy typ = new TypWypozyczajacy(0.5, 14, 5);
-        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(typ, "Jan Kowalski", LocalDate.of(1990, 1, 1), "ul. Kwiatowa 10");
+        Date testDate = new Date(90, 0, 1); // Rok 1990: 90 = 1990 - 1900, styczeń = 0
+        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(typ, "Jan Kowalski", testDate, "ul. Kwiatowa 10");
 
         zarzadca.dodajWypozyczajacy(wypozyczajacy);
 
@@ -46,7 +47,8 @@ class ZarzadcaWypozyczajacyMongoTest {
     @Test
     void testUsunWypozyczajacy() {
         TypWypozyczajacy typ = new TypWypozyczajacy(1.0, 30, 10);
-        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(typ, "Anna Nowak", LocalDate.of(1985, 5, 15), "ul. Wiosenna 20");
+        Date testDate = new Date(85, 4, 15); // Rok 1985: 85 = 1985 - 1900, maj = 4
+        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(typ, "Anna Nowak", testDate, "ul. Wiosenna 20");
 
         zarzadca.dodajWypozyczajacy(wypozyczajacy);
         ObjectId wypozyczajacyId = wypozyczajacy.getId();
@@ -59,7 +61,8 @@ class ZarzadcaWypozyczajacyMongoTest {
     @Test
     void testZaktualizujWypozyczajacy() {
         TypWypozyczajacy typ = new TypWypozyczajacy(0.5, 14, 5);
-        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(typ, "Ewa Kwiatkowska", LocalDate.of(1992, 7, 25), "ul. Jesienna 15");
+        Date testDate = new Date(92, 6, 25); // Rok 1992: 92 = 1992 - 1900, lipiec = 6
+        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(typ, "Ewa Kwiatkowska", testDate, "ul. Jesienna 15");
 
         zarzadca.dodajWypozyczajacy(wypozyczajacy);
 

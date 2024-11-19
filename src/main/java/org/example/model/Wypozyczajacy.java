@@ -1,20 +1,30 @@
 package org.example.model;
 
+import org.bson.BsonType;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.codecs.pojo.annotations.BsonRepresentation;
 import org.bson.types.ObjectId;
 import org.example.exceptions.WypozyczajacyException;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.UUID;
 
 public class Wypozyczajacy {
+    @BsonProperty("typWypozyczajacy")
     private TypWypozyczajacy typWypozyczajacy;
+    @BsonProperty("nazwa")
     private String nazwa;
-    private LocalDate dataUr;
+    @BsonProperty("dataUr")
+    private Date dataUr;
+    @BsonProperty("adres")
     private String adres;
+    @BsonId
     private ObjectId id;
     //private UUID uuid;
 
-    public Wypozyczajacy(TypWypozyczajacy typWypozyczajacy, String nazwa, LocalDate dataUr, String adres) {
+    public Wypozyczajacy(TypWypozyczajacy typWypozyczajacy, String nazwa, Date dataUr, String adres) {
         if (typWypozyczajacy == null) {
             throw new WypozyczajacyException("Błędny typWypozyczajacy");
         }
@@ -54,7 +64,7 @@ public class Wypozyczajacy {
         return nazwa;
     }
 
-    public LocalDate getDataUr() {
+    public Date getDataUr() {
         return dataUr;
     }
 
@@ -76,7 +86,7 @@ public class Wypozyczajacy {
         this.nazwa = nazwa;
     }
 
-    public void setDataUr(LocalDate dataUr) {
+    public void setDataUr(Date dataUr) {
         this.dataUr = dataUr;
     }
 

@@ -3,11 +3,9 @@ package org.example.model;
 import org.example.exceptions.WypozyczenieException;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +14,9 @@ class WypozyczenieTest {
     @Test
     void wypozyczenieTest() {
         List<String> autorzy = Arrays.asList("J.K. Rowling");
-        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(new Nauczyciel(0.0, 30, 10, "Dr"), "Jan Kowalski", LocalDate.of(2023, 5, 1), "Warszawa");
+        // Tworzenie daty dla Wypozyczajacy
+        Date testDate = new Date(123, 4, 1); // Rok 2023: 123 = 2023 - 1900, Miesiące od 0, więc maj to 4
+        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(new Nauczyciel(0.0, 30, 10, "Dr"), "Jan Kowalski", testDate, "Warszawa");
         Wolumin wolumin = new Beletrystyka("Helion", "PL", "Harry Potter", autorzy, "15+", "Fantasy");
 
         Wypozyczenie wypozyczenie = new Wypozyczenie(wypozyczajacy, wolumin);
@@ -27,9 +27,7 @@ class WypozyczenieTest {
         wypozyczenie.koniecWypozyczenia();
         assertNotNull(wypozyczenie.getDataDo());
 
-        //assertNotNull(wypozyczenie.getUuid());
-
-        Wypozyczajacy nowyWypozyczajacy = new Wypozyczajacy(new Nauczyciel(0.0, 30, 10, "Prof"), "Adam Nowak", LocalDate.of(2023, 5, 1), "Kraków");
+        Wypozyczajacy nowyWypozyczajacy = new Wypozyczajacy(new Nauczyciel(0.0, 30, 10, "Prof"), "Adam Nowak", testDate, "Kraków");
         wypozyczenie.setWypozyczajacy(nowyWypozyczajacy);
         assertEquals(nowyWypozyczajacy, wypozyczenie.getWypozyczajacy());
 
@@ -43,7 +41,9 @@ class WypozyczenieTest {
 
     @Test
     void wypozyczenieExceptionsTest() {
-        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(new Nauczyciel(0.0, 30, 10, "Dr"), "Jan Kowalski", LocalDate.of(2023, 5, 1), "Warszawa");
+        // Tworzenie daty dla Wypozyczajacy
+        Date testDate = new Date(123, 4, 1); // Rok 2023: 123 = 2023 - 1900, Miesiące od 0, więc maj to 4
+        Wypozyczajacy wypozyczajacy = new Wypozyczajacy(new Nauczyciel(0.0, 30, 10, "Dr"), "Jan Kowalski", testDate, "Warszawa");
         List<String> autorzy = Arrays.asList("J.K. Rowling");
         Wolumin wolumin = new Beletrystyka("Helion", "PL", "Harry Potter", autorzy, "15+", "Fantasy");
 
