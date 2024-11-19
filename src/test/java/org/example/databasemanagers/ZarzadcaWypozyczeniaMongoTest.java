@@ -105,6 +105,97 @@ class ZarzadcaWypozyczeniaMongoTest {
         assertNotNull(updated, "Zaktualizowane wypożyczenie nie zostało znalezione.");
         assertNotNull(updated.getDataDo(), "Data zakończenia wypożyczenia nie została ustawiona.");
     }
+    @Test
+    void testDodajWypozyczenie_Sukces() {
+        // Arrange
+        Wolumin wolumin = new Wolumin("Wydawnictwo XYZ", "Polski", "Tytuł ABC");
+        zarzadcaWoluminu.dodajWolumin(wolumin);
+
+        Wypozyczajacy wypozyczajacy = new Wypozyczajacy();
+        wypozyczajacy.setNazwa("Jan Nowak");
+        wypozyczajacy.setAdres("Adres 1");
+        wypozyczajacy.setDataUr(new Date());
+        wypozyczajacy.setTypWypozyczajacy(new TypWypozyczajacy(1, 2, 3));
+        zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy);
+
+        Wypozyczenie wypozyczenie = new Wypozyczenie(wypozyczajacy, wolumin);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> zarzadca.dodajWypozyczenie(wypozyczenie));
+    }
+
+    @Test
+    void testDodajWypozyczenie_WoluminJuzWypozyczony() {
+        // Arrange
+        Wolumin wolumin = new Wolumin("Wydawnictwo XYZ", "Polski", "Tytuł ABC");
+        zarzadcaWoluminu.dodajWolumin(wolumin);
+
+        Wypozyczajacy wypozyczajacy1 = new Wypozyczajacy();
+        wypozyczajacy1.setNazwa("Jan Nowak");
+        wypozyczajacy1.setAdres("Adres 1");
+        wypozyczajacy1.setDataUr(new Date());
+        wypozyczajacy1.setTypWypozyczajacy(new TypWypozyczajacy(1, 2, 3));
+        zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy1);
+
+        Wypozyczajacy wypozyczajacy2 = new Wypozyczajacy();
+        wypozyczajacy2.setNazwa("Anna Kowalska");
+        wypozyczajacy2.setAdres("Adres 2");
+        wypozyczajacy2.setDataUr(new Date());
+        wypozyczajacy2.setTypWypozyczajacy(new TypWypozyczajacy(4, 5, 6));
+        zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy2);
+
+        // Pierwsze wypożyczenie
+        Wypozyczenie wypozyczenie1 = new Wypozyczenie(wypozyczajacy1, wolumin);
+        zarzadca.dodajWypozyczenie(wypozyczenie1);
+
+        // Próba drugiego wypożyczenia tego samego woluminu
+        Wypozyczenie wypozyczenie2 = new Wypozyczenie(wypozyczajacy2, wolumin);
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            zarzadca.dodajWypozyczenie(wypozyczenie2);
+        });
+
+        String expectedMessage = "Wolumin jest już wypożyczony.";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void testWypozyczeniePoZwrocie() {
+        // Arrange
+        Wolumin wolumin = new Wolumin("Wydawnictwo XYZ", "Polski", "Tytuł ABC");
+        zarzadcaWoluminu.dodajWolumin(wolumin);
+
+        Wypozyczajacy wypozyczajacy1 = new Wypozyczajacy();
+        wypozyczajacy1.setNazwa("Jan Nowak");
+        wypozyczajacy1.setAdres("Adres 1");
+        wypozyczajacy1.setDataUr(new Date());
+        wypozyczajacy1.setTypWypozyczajacy(new TypWypozyczajacy(1, 2, 3));
+        zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy1);
+
+        Wypozyczajacy wypozyczajacy2 = new Wypozyczajacy();
+        wypozyczajacy2.setNazwa("Anna Kowalska");
+        wypozyczajacy2.setAdres("Adres 2");
+        wypozyczajacy2.setDataUr(new Date());
+        wypozyczajacy2.setTypWypozyczajacy(new TypWypozyczajacy(4, 5, 6));
+        zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy2);
+
+        // Pierwsze wypożyczenie
+        Wypozyczenie wypozyczenie1 = new Wypozyczenie(wypozyczajacy1, wolumin);
+        zarzadca.dodajWypozyczenie(wypozyczenie1);
+
+        // Zwrot woluminu
+        wypozyczenie1.koniecWypozyczenia();
+        zarzadca.zaktualizujWypozyczenie(wypozyczenie1.getId(), wypozyczenie1);
+
+        // Drugie wypożyczenie po zwrocie
+        Wypozyczenie wypozyczenie2 = new Wypozyczenie(wypozyczajacy2, wolumin);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> zarzadca.dodajWypozyczenie(wypozyczenie2));
+    }
 
 
 }

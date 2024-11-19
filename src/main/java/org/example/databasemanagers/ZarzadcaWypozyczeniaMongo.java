@@ -1,11 +1,12 @@
 package org.example.databasemanagers;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoCredential;
+import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
+import org.bson.Document;
 import org.bson.codecs.jsr310.Jsr310CodecProvider;
 import org.bson.types.ObjectId;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -48,6 +49,21 @@ public class ZarzadcaWypozyczeniaMongo {
         this.wypozyczenieCollection = new WypozyczenieMongoRepository(
                 database.getCollection("wypozyczenia", Wypozyczenie.class)
         );
+        boolean indexExists = false;
+        for (Document indexInfo : database.getCollection("wypozyczenia").listIndexes()) {
+            if ("wolumin.id_1".equals(indexInfo.getString("name"))) {
+                indexExists = true;
+                break;
+            }
+        }
+
+        if (!indexExists) {
+            // Create unique partial index
+            database.getCollection("wypozyczenia").createIndex(
+                    Indexes.ascending("wolumin.id"),
+                    new IndexOptions().unique(true).partialFilterExpression(new Document("dataDo", null))
+            );
+        }
     }
 
     public WypozyczenieMongoRepository getWypozyczenieCollection() {
@@ -55,7 +71,15 @@ public class ZarzadcaWypozyczeniaMongo {
     }
 
     public void dodajWypozyczenie(Wypozyczenie wypozyczenie) {
-        wypozyczenieCollection.dodaj(wypozyczenie);
+        try {
+            wypozyczenieCollection.dodaj(wypozyczenie);
+        } catch (MongoWriteException e) {
+            if (e.getError().getCategory() == ErrorCategory.DUPLICATE_KEY) {
+                throw new RuntimeException("Wolumin jest już wypożyczony.");
+            } else {
+                throw e;
+            }
+        }
     }
 
     public Wypozyczenie znajdzWypozyczenie(ObjectId id) {
