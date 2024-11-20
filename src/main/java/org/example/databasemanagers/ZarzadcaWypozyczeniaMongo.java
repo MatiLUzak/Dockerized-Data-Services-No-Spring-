@@ -7,72 +7,57 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
-import org.bson.codecs.jsr310.Jsr310CodecProvider;
 import org.bson.types.ObjectId;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.example.databaserepository.WypozyczenieMongoRepository;
+import org.example.mappers.WypozyczenieMapper;
 import org.example.model.Wypozyczenie;
-
-import static org.bson.codecs.configuration.CodecRegistries.*;
+import org.example.model.Wypozyczajacy;
+import org.example.model.Wolumin;
 
 public class ZarzadcaWypozyczeniaMongo {
 
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final WypozyczenieMongoRepository wypozyczenieCollection;
+    private final ZarzadcaWypozyczajacyMongo wypozyczajacyZarzadca;
+    private final ZarzadcaWoluminu woluminZarzadca;
 
-    public ZarzadcaWypozyczeniaMongo() {
-        // Connection configuration
-        ConnectionString connectionString = new ConnectionString("mongodb://mongodb1:27017," +
-                "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single");
+    public ZarzadcaWypozyczeniaMongo(ZarzadcaWypozyczajacyMongo wypozyczajacyZarzadca, ZarzadcaWoluminu woluminZarzadca) {
+        // Konfiguracja połączenia (bez PojoCodecProvider)
         MongoCredential credentials = MongoCredential.createCredential(
-                "admin", "admin", "adminpassword".toCharArray());
-
-        CodecRegistry pojoCodecRegistry = fromRegistries(
-                MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(
-                        new Jsr310CodecProvider(),
-                        PojoCodecProvider.builder().automatic(true).build()
-                )
+                "admin", "admin", "adminpassword".toCharArray()
         );
 
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
                 .credential(credentials)
-                .codecRegistry(pojoCodecRegistry)
+                .applyConnectionString(new ConnectionString("mongodb://mongodb1:27017," +
+                        "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single"))
                 .build();
 
         this.mongoClient = MongoClients.create(settings);
-        this.database = mongoClient.getDatabase("CarSystem");
+        this.database = mongoClient.getDatabase("BookSystem");
+        this.wypozyczajacyZarzadca = wypozyczajacyZarzadca;
+        this.woluminZarzadca = woluminZarzadca;
 
-        this.wypozyczenieCollection = new WypozyczenieMongoRepository(
-                database.getCollection("wypozyczenia", Wypozyczenie.class)
-        );
+        // Tworzenie indeksu
         boolean indexExists = false;
         for (Document indexInfo : database.getCollection("wypozyczenia").listIndexes()) {
-            if ("wolumin.id_1".equals(indexInfo.getString("name"))) {
+            if ("woluminId_1".equals(indexInfo.getString("name"))) {
                 indexExists = true;
                 break;
             }
         }
 
         if (!indexExists) {
-            // Create unique partial index
             database.getCollection("wypozyczenia").createIndex(
-                    Indexes.ascending("wolumin.id"),
+                    Indexes.ascending("woluminId"),
                     new IndexOptions().unique(true).partialFilterExpression(new Document("dataDo", null))
             );
         }
     }
 
-    public WypozyczenieMongoRepository getWypozyczenieCollection() {
-        return wypozyczenieCollection;
-    }
-
     public void dodajWypozyczenie(Wypozyczenie wypozyczenie) {
+        Document doc = WypozyczenieMapper.toDocument(wypozyczenie);
         try {
-            wypozyczenieCollection.dodaj(wypozyczenie);
+            database.getCollection("wypozyczenia").insertOne(doc);
         } catch (MongoWriteException e) {
             if (e.getError().getCategory() == ErrorCategory.DUPLICATE_KEY) {
                 throw new RuntimeException("Wolumin jest już wypożyczony.");
@@ -83,26 +68,35 @@ public class ZarzadcaWypozyczeniaMongo {
     }
 
     public Wypozyczenie znajdzWypozyczenie(ObjectId id) {
-        return wypozyczenieCollection.znajdzPoId(id);
+        Document doc = database.getCollection("wypozyczenia").find(new Document("_id", id)).first();
+        if (doc != null) {
+            ObjectId wypozyczajacyId = doc.getObjectId("wypozyczajacyId");
+            ObjectId woluminId = doc.getObjectId("woluminId");
+
+            Wypozyczajacy wypozyczajacy = wypozyczajacyZarzadca.znajdzWypozyczajacy(wypozyczajacyId);
+            Wolumin wolumin = woluminZarzadca.znajdzWolumin(woluminId);
+
+            return WypozyczenieMapper.fromDocument(doc, wypozyczajacy, wolumin);
+        } else {
+            return null;
+        }
     }
 
     public void zaktualizujWypozyczenie(ObjectId id, Wypozyczenie updatedWypozyczenie) {
-        wypozyczenieCollection.zaktualizuj(id, updatedWypozyczenie);
+        Document doc = WypozyczenieMapper.toDocument(updatedWypozyczenie);
+        database.getCollection("wypozyczenia").replaceOne(new Document("_id", id), doc);
     }
 
     public void usunWypozyczenie(ObjectId id) {
-        wypozyczenieCollection.usun(id);
-    }
-
-    public double obliczKare(ObjectId id) {
-        Wypozyczenie wypozyczenie = wypozyczenieCollection.znajdzPoId(id);
-        if (wypozyczenie == null) {
-            throw new RuntimeException("Nie znaleziono wypożyczenia");
-        }
-        return wypozyczenie.obliczKare();
+        database.getCollection("wypozyczenia").deleteOne(new Document("_id", id));
     }
 
     public void zamknijPolaczenie() {
         mongoClient.close();
     }
+
+    public com.mongodb.client.MongoCollection<Document> getWypozyczenieCollection() {
+        return database.getCollection("wypozyczenia");
+    }
+
 }

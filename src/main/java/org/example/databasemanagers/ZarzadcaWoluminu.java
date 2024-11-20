@@ -6,73 +6,62 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import org.bson.codecs.jsr310.Jsr310CodecProvider;
+
+import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.example.databaserepository.WoluminMongoRepository;
+import org.example.mappers.WoluminMapper;
 import org.example.model.Wolumin;
 
-import static org.bson.codecs.configuration.CodecRegistries.*;
-
 public class ZarzadcaWoluminu {
+
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final WoluminMongoRepository woluminCollection;
 
     public ZarzadcaWoluminu() {
-        ConnectionString connectionString = new ConnectionString("mongodb://mongodb1:27017," +
-                "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single");
+        // Konfiguracja połączenia
         MongoCredential credentials = MongoCredential.createCredential(
-                "admin", "admin", "adminpassword".toCharArray());
-
-        CodecRegistry pojoCodecRegistry = fromRegistries(
-                MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(
-                        new Jsr310CodecProvider(),
-                        PojoCodecProvider.builder().automatic(true).build()
-                )
+                "admin", "admin", "adminpassword".toCharArray()
         );
 
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
                 .credential(credentials)
-                .codecRegistry(pojoCodecRegistry)
+                .applyConnectionString(new ConnectionString("mongodb://mongodb1:27017," +
+                        "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single"))
                 .build();
 
         this.mongoClient = MongoClients.create(settings);
-        this.database = mongoClient.getDatabase("CarSystem");
-
-        this.woluminCollection = new WoluminMongoRepository(
-                database.getCollection("woluminy", Wolumin.class)
-        );
-    }
-
-    public WoluminMongoRepository getWoluminCollection() {
-        return woluminCollection;
+        this.database = mongoClient.getDatabase("BookSystem");
     }
 
     public void dodajWolumin(Wolumin wolumin) {
-        woluminCollection.dodaj(wolumin);
+        Document doc = WoluminMapper.toDocument(wolumin);
+        database.getCollection("woluminy").insertOne(doc);
     }
 
     public Wolumin znajdzWolumin(ObjectId id) {
-        return woluminCollection.znajdzPoId(id);
+        Document doc = database.getCollection("woluminy").find(new Document("_id", id)).first();
+        if (doc != null) {
+            return WoluminMapper.fromDocument(doc);
+        } else {
+            return null;
+        }
     }
 
     public void zaktualizujWolumin(ObjectId id, Wolumin updatedWolumin) {
-        woluminCollection.zaktualizuj(id, updatedWolumin);
+        Document doc = WoluminMapper.toDocument(updatedWolumin);
+        database.getCollection("woluminy").replaceOne(new Document("_id", id), doc);
     }
 
     public void usunWolumin(ObjectId id) {
-        woluminCollection.usun(id);
-    }
-
-    public Wolumin znajdzPoTytule(String tytul) {
-        return woluminCollection.znajdzPoTytule(tytul);
+        database.getCollection("woluminy").deleteOne(new Document("_id", id));
     }
 
     public void zamknijPolaczenie() {
         mongoClient.close();
     }
+
+    public com.mongodb.client.MongoCollection<Document> getWoluminCollection() {
+        return database.getCollection("woluminy");
+    }
+
 }

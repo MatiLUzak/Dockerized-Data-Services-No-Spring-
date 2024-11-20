@@ -20,9 +20,9 @@ class ZarzadcaWypozyczeniaMongoTest {
 
     @BeforeAll
     void init() {
-        zarzadca = new ZarzadcaWypozyczeniaMongo();
-        zarzadcaWoluminu = new ZarzadcaWoluminu();
         zarzadcaWypozyczajacy = new ZarzadcaWypozyczajacyMongo();
+        zarzadcaWoluminu = new ZarzadcaWoluminu();
+        zarzadca = new ZarzadcaWypozyczeniaMongo(zarzadcaWypozyczajacy, zarzadcaWoluminu);
     }
 
     @BeforeEach
@@ -45,7 +45,11 @@ class ZarzadcaWypozyczeniaMongoTest {
         zarzadcaWoluminu.dodajWolumin(wolumin);
 
         Wypozyczajacy wypozyczajacy = new Wypozyczajacy();
+        wypozyczajacy.setId(new ObjectId());
         wypozyczajacy.setNazwa("Jan Kowalski");
+        wypozyczajacy.setAdres("ul. Główna 1");
+        wypozyczajacy.setDataUr(new Date());
+        wypozyczajacy.setTypWypozyczajacy(new TypWypozyczajacy(5, 14, 10));
         zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy);
 
         Wypozyczenie wypozyczenie = new Wypozyczenie(wypozyczajacy, wolumin);
@@ -128,9 +132,11 @@ class ZarzadcaWypozyczeniaMongoTest {
     void testDodajWypozyczenie_WoluminJuzWypozyczony() {
         // Arrange
         Wolumin wolumin = new Wolumin("Wydawnictwo XYZ", "Polski", "Tytuł ABC");
+        wolumin.setId(new ObjectId());
         zarzadcaWoluminu.dodajWolumin(wolumin);
 
         Wypozyczajacy wypozyczajacy1 = new Wypozyczajacy();
+        wypozyczajacy1.setId(new ObjectId());
         wypozyczajacy1.setNazwa("Jan Nowak");
         wypozyczajacy1.setAdres("Adres 1");
         wypozyczajacy1.setDataUr(new Date());
@@ -138,20 +144,20 @@ class ZarzadcaWypozyczeniaMongoTest {
         zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy1);
 
         Wypozyczajacy wypozyczajacy2 = new Wypozyczajacy();
+        wypozyczajacy2.setId(new ObjectId());
         wypozyczajacy2.setNazwa("Anna Kowalska");
         wypozyczajacy2.setAdres("Adres 2");
         wypozyczajacy2.setDataUr(new Date());
         wypozyczajacy2.setTypWypozyczajacy(new TypWypozyczajacy(4, 5, 6));
         zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy2);
 
-        // Pierwsze wypożyczenie
         Wypozyczenie wypozyczenie1 = new Wypozyczenie(wypozyczajacy1, wolumin);
+        wypozyczenie1.setId(new ObjectId());
         zarzadca.dodajWypozyczenie(wypozyczenie1);
 
-        // Próba drugiego wypożyczenia tego samego woluminu
         Wypozyczenie wypozyczenie2 = new Wypozyczenie(wypozyczajacy2, wolumin);
+        wypozyczenie2.setId(new ObjectId());
 
-        // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () -> {
             zarzadca.dodajWypozyczenie(wypozyczenie2);
         });
@@ -166,9 +172,11 @@ class ZarzadcaWypozyczeniaMongoTest {
     void testWypozyczeniePoZwrocie() {
         // Arrange
         Wolumin wolumin = new Wolumin("Wydawnictwo XYZ", "Polski", "Tytuł ABC");
+        wolumin.setId(new ObjectId());
         zarzadcaWoluminu.dodajWolumin(wolumin);
 
         Wypozyczajacy wypozyczajacy1 = new Wypozyczajacy();
+        wypozyczajacy1.setId(new ObjectId());
         wypozyczajacy1.setNazwa("Jan Nowak");
         wypozyczajacy1.setAdres("Adres 1");
         wypozyczajacy1.setDataUr(new Date());
@@ -176,24 +184,23 @@ class ZarzadcaWypozyczeniaMongoTest {
         zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy1);
 
         Wypozyczajacy wypozyczajacy2 = new Wypozyczajacy();
+        wypozyczajacy2.setId(new ObjectId());
         wypozyczajacy2.setNazwa("Anna Kowalska");
         wypozyczajacy2.setAdres("Adres 2");
         wypozyczajacy2.setDataUr(new Date());
         wypozyczajacy2.setTypWypozyczajacy(new TypWypozyczajacy(4, 5, 6));
         zarzadcaWypozyczajacy.dodajWypozyczajacy(wypozyczajacy2);
 
-        // Pierwsze wypożyczenie
         Wypozyczenie wypozyczenie1 = new Wypozyczenie(wypozyczajacy1, wolumin);
+        wypozyczenie1.setId(new ObjectId());
         zarzadca.dodajWypozyczenie(wypozyczenie1);
 
-        // Zwrot woluminu
         wypozyczenie1.koniecWypozyczenia();
         zarzadca.zaktualizujWypozyczenie(wypozyczenie1.getId(), wypozyczenie1);
 
-        // Drugie wypożyczenie po zwrocie
         Wypozyczenie wypozyczenie2 = new Wypozyczenie(wypozyczajacy2, wolumin);
+        wypozyczenie2.setId(new ObjectId());
 
-        // Act & Assert
         assertDoesNotThrow(() -> zarzadca.dodajWypozyczenie(wypozyczenie2));
     }
 

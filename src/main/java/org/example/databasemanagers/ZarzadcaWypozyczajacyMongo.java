@@ -6,69 +6,60 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import org.bson.codecs.jsr310.Jsr310CodecProvider;
+
+import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.example.databaserepository.WypozyczajacyMongoRepository;
+import org.example.mappers.WypozyczajacyMapper;
 import org.example.model.Wypozyczajacy;
 
-import static org.bson.codecs.configuration.CodecRegistries.*;
-
 public class ZarzadcaWypozyczajacyMongo {
+
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final WypozyczajacyMongoRepository wypozyczajacyCollection;
 
     public ZarzadcaWypozyczajacyMongo() {
-        ConnectionString connectionString = new ConnectionString("mongodb://mongodb1:27017," +
-                "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single");
         MongoCredential credentials = MongoCredential.createCredential(
-                "admin", "admin", "adminpassword".toCharArray());
-
-        CodecRegistry pojoCodecRegistry = fromRegistries(
-                MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(
-                        new Jsr310CodecProvider(),
-                        PojoCodecProvider.builder().automatic(true).build()
-                )
+                "admin", "admin", "adminpassword".toCharArray()
         );
 
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
                 .credential(credentials)
-                .codecRegistry(pojoCodecRegistry)
+                .applyConnectionString(new ConnectionString("mongodb://mongodb1:27017," +
+                        "mongodb2:27018,mongodb3:27019/?replicaSet=replica_set_single"))
                 .build();
 
         this.mongoClient = MongoClients.create(settings);
-        this.database = mongoClient.getDatabase("CarSystem");
-
-        this.wypozyczajacyCollection = new WypozyczajacyMongoRepository(
-                database.getCollection("wypozyczajacy", Wypozyczajacy.class)
-        );
-    }
-
-    public WypozyczajacyMongoRepository getWypozyczajacyCollection() {
-        return wypozyczajacyCollection;
+        this.database = mongoClient.getDatabase("BookSystem");
     }
 
     public void dodajWypozyczajacy(Wypozyczajacy wypozyczajacy) {
-        wypozyczajacyCollection.dodaj(wypozyczajacy);
+        Document doc = WypozyczajacyMapper.toDocument(wypozyczajacy);
+        database.getCollection("wypozyczajacy").insertOne(doc);
     }
 
     public Wypozyczajacy znajdzWypozyczajacy(ObjectId id) {
-        return wypozyczajacyCollection.znajdzPoId(id);
+        Document doc = database.getCollection("wypozyczajacy").find(new Document("_id", id)).first();
+        if (doc != null) {
+            return WypozyczajacyMapper.fromDocument(doc);
+        } else {
+            return null;
+        }
     }
 
     public void zaktualizujWypozyczajacy(ObjectId id, Wypozyczajacy updatedWypozyczajacy) {
-        wypozyczajacyCollection.zaktualizuj(id, updatedWypozyczajacy);
+        Document doc = WypozyczajacyMapper.toDocument(updatedWypozyczajacy);
+        database.getCollection("wypozyczajacy").replaceOne(new Document("_id", id), doc);
     }
 
     public void usunWypozyczajacy(ObjectId id) {
-        wypozyczajacyCollection.usun(id);
+        database.getCollection("wypozyczajacy").deleteOne(new Document("_id", id));
     }
 
     public void zamknijPolaczenie() {
         mongoClient.close();
     }
+    public com.mongodb.client.MongoCollection<Document> getWypozyczajacyCollection() {
+        return database.getCollection("wypozyczajacy");
+    }
+
 }
