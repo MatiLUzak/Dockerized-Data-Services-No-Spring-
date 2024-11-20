@@ -8,6 +8,7 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.example.databaserepository.WypozyczenieMongoRepository;
 import org.example.mappers.WypozyczenieMapper;
 import org.example.model.Wypozyczenie;
 import org.example.model.Wypozyczajacy;
@@ -19,6 +20,7 @@ public class ZarzadcaWypozyczeniaMongo {
     private final MongoDatabase database;
     private final ZarzadcaWypozyczajacyMongo wypozyczajacyZarzadca;
     private final ZarzadcaWoluminu woluminZarzadca;
+    private final WypozyczenieMongoRepository repozytorium;
 
     public ZarzadcaWypozyczeniaMongo(ZarzadcaWypozyczajacyMongo wypozyczajacyZarzadca, ZarzadcaWoluminu woluminZarzadca) {
         // Konfiguracja połączenia (bez PojoCodecProvider)
@@ -36,6 +38,7 @@ public class ZarzadcaWypozyczeniaMongo {
         this.database = mongoClient.getDatabase("BookSystem");
         this.wypozyczajacyZarzadca = wypozyczajacyZarzadca;
         this.woluminZarzadca = woluminZarzadca;
+        this.repozytorium = new WypozyczenieMongoRepository(database.getCollection("wypozyczenia", Document.class));
 
         // Tworzenie indeksu
         boolean indexExists = false;
@@ -57,7 +60,7 @@ public class ZarzadcaWypozyczeniaMongo {
     public void dodajWypozyczenie(Wypozyczenie wypozyczenie) {
         Document doc = WypozyczenieMapper.toDocument(wypozyczenie);
         try {
-            database.getCollection("wypozyczenia").insertOne(doc);
+            repozytorium.dodaj(doc);
         } catch (MongoWriteException e) {
             if (e.getError().getCategory() == ErrorCategory.DUPLICATE_KEY) {
                 throw new RuntimeException("Wolumin jest już wypożyczony.");
@@ -84,11 +87,11 @@ public class ZarzadcaWypozyczeniaMongo {
 
     public void zaktualizujWypozyczenie(ObjectId id, Wypozyczenie updatedWypozyczenie) {
         Document doc = WypozyczenieMapper.toDocument(updatedWypozyczenie);
-        database.getCollection("wypozyczenia").replaceOne(new Document("_id", id), doc);
+        repozytorium.zaktualizuj(id, doc);
     }
 
     public void usunWypozyczenie(ObjectId id) {
-        database.getCollection("wypozyczenia").deleteOne(new Document("_id", id));
+        repozytorium.usun(id);
     }
 
     public void zamknijPolaczenie() {

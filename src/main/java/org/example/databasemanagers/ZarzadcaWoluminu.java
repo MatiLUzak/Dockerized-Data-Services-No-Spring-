@@ -9,6 +9,7 @@ import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.example.databaserepository.WoluminMongoRepository;
 import org.example.mappers.WoluminMapper;
 import org.example.model.Wolumin;
 
@@ -16,6 +17,8 @@ public class ZarzadcaWoluminu {
 
     private final MongoClient mongoClient;
     private final MongoDatabase database;
+    private final WoluminMongoRepository repozytorium;
+
 
     public ZarzadcaWoluminu() {
         // Konfiguracja połączenia
@@ -31,11 +34,12 @@ public class ZarzadcaWoluminu {
 
         this.mongoClient = MongoClients.create(settings);
         this.database = mongoClient.getDatabase("BookSystem");
+        this.repozytorium = new WoluminMongoRepository(database.getCollection("woluminy", Document.class));
     }
 
     public void dodajWolumin(Wolumin wolumin) {
         Document doc = WoluminMapper.toDocument(wolumin);
-        database.getCollection("woluminy").insertOne(doc);
+        repozytorium.dodaj(doc);
     }
 
     public Wolumin znajdzWolumin(ObjectId id) {
@@ -49,11 +53,11 @@ public class ZarzadcaWoluminu {
 
     public void zaktualizujWolumin(ObjectId id, Wolumin updatedWolumin) {
         Document doc = WoluminMapper.toDocument(updatedWolumin);
-        database.getCollection("woluminy").replaceOne(new Document("_id", id), doc);
+        repozytorium.zaktualizuj(id, doc);
     }
 
     public void usunWolumin(ObjectId id) {
-        database.getCollection("woluminy").deleteOne(new Document("_id", id));
+        repozytorium.usun(id);
     }
 
     public void zamknijPolaczenie() {

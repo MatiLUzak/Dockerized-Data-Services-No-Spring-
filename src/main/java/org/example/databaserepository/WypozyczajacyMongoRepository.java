@@ -1,16 +1,15 @@
 package org.example.databaserepository;
 
 import com.mongodb.client.MongoCollection;
-import org.bson.types.ObjectId;
-import org.example.model.Wypozyczajacy;
+import org.bson.Document;
 
-public class WypozyczajacyMongoRepository extends MongoRepository<Wypozyczajacy> {
+public class WypozyczajacyMongoRepository extends MongoRepository<Document> {
 
-    public WypozyczajacyMongoRepository(MongoCollection<Wypozyczajacy> collection) {
+    public WypozyczajacyMongoRepository(MongoCollection<Document> collection) {
         super(collection);
     }
 
-    public Wypozyczajacy znajdzPoNazwisku(String nazwisko) {
-        return collection.find(new org.bson.Document("nazwisko", nazwisko)).first();
+    public Document znajdzPoNazwie(String nazwa) {
+        return collection.find(new Document("nazwa", nazwa)).first();
     }
 }

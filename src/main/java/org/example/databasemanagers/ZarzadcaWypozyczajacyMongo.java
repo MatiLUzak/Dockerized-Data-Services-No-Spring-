@@ -9,6 +9,7 @@ import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.example.databaserepository.WypozyczajacyMongoRepository;
 import org.example.mappers.WypozyczajacyMapper;
 import org.example.model.Wypozyczajacy;
 
@@ -16,6 +17,7 @@ public class ZarzadcaWypozyczajacyMongo {
 
     private final MongoClient mongoClient;
     private final MongoDatabase database;
+    private final WypozyczajacyMongoRepository repozytorium;
 
     public ZarzadcaWypozyczajacyMongo() {
         MongoCredential credentials = MongoCredential.createCredential(
@@ -30,11 +32,12 @@ public class ZarzadcaWypozyczajacyMongo {
 
         this.mongoClient = MongoClients.create(settings);
         this.database = mongoClient.getDatabase("BookSystem");
+        this.repozytorium = new WypozyczajacyMongoRepository(database.getCollection("wypozyczajacy", Document.class));
     }
 
     public void dodajWypozyczajacy(Wypozyczajacy wypozyczajacy) {
         Document doc = WypozyczajacyMapper.toDocument(wypozyczajacy);
-        database.getCollection("wypozyczajacy").insertOne(doc);
+        repozytorium.dodaj(doc);
     }
 
     public Wypozyczajacy znajdzWypozyczajacy(ObjectId id) {
@@ -48,11 +51,11 @@ public class ZarzadcaWypozyczajacyMongo {
 
     public void zaktualizujWypozyczajacy(ObjectId id, Wypozyczajacy updatedWypozyczajacy) {
         Document doc = WypozyczajacyMapper.toDocument(updatedWypozyczajacy);
-        database.getCollection("wypozyczajacy").replaceOne(new Document("_id", id), doc);
+        repozytorium.zaktualizuj(id, doc);
     }
 
     public void usunWypozyczajacy(ObjectId id) {
-        database.getCollection("wypozyczajacy").deleteOne(new Document("_id", id));
+        repozytorium.usun(id);
     }
 
     public void zamknijPolaczenie() {
