@@ -41,7 +41,7 @@ public class TestMongoConnection {
         // Initialize MongoClient
         try (MongoClient mongoClient = MongoClients.create(settings)) {
             // Access the database
-            MongoDatabase bankSystemDB = mongoClient.getDatabase("bankSystem");
+            MongoDatabase bankSystemDB = mongoClient.getDatabase("BookSystem");
 
             // Print database name to confirm connection
             System.out.println("Connected to database: " + bankSystemDB.getName());
