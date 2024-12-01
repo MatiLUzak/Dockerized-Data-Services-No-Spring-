@@ -4,6 +4,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.example.model.Wolumin;
 import org.example.redis.RedisClient;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPooled;
 import com.google.gson.Gson;
 
@@ -64,4 +65,12 @@ public class WoluminCacheRepository implements WoluminRepository {
     public void deleteMany(Document filter) {
         repozytorium.deleteMany(filter);
     }
+    public void clearCache() {
+        try (Jedis jedisDirect = new Jedis(RedisClient.getHost(), RedisClient.getPort())) {
+            jedisDirect.flushDB();
+        } catch (Exception e) {
+            System.err.println("Błąd podczas czyszczenia cache'a: " + e.getMessage());
+        }
+    }
+
 }
