@@ -8,7 +8,9 @@ public class WoluminMapper {
 
     public static Document toDocument(Wolumin wolumin) {
         Document doc = new Document();
-        doc.append("_id", wolumin.getId());
+        if(wolumin.getId() != null) {
+            doc.append("_id", wolumin.getId());
+        }
         doc.append("wydawnictwo", wolumin.getWydawnictwo());
         doc.append("jezyk", wolumin.getJezyk());
         doc.append("tytul", wolumin.getTytul());

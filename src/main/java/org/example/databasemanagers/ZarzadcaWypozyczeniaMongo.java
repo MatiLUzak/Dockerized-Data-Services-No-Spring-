@@ -60,7 +60,7 @@ public class ZarzadcaWypozyczeniaMongo {
     public void dodajWypozyczenie(Wypozyczenie wypozyczenie) {
         Document doc = WypozyczenieMapper.toDocument(wypozyczenie);
         try {
-            repozytorium.dodaj(doc);
+            repozytorium.dodajWypozyczenie(wypozyczenie);
         } catch (MongoWriteException e) {
             if (e.getError().getCategory() == ErrorCategory.DUPLICATE_KEY) {
                 throw new RuntimeException("Wolumin jest już wypożyczony.");

@@ -9,7 +9,9 @@ import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.example.databaserepository.WoluminCacheRepository;
 import org.example.databaserepository.WoluminMongoRepository;
+import org.example.databaserepository.WoluminRepository;
 import org.example.mappers.WoluminMapper;
 import org.example.model.Wolumin;
 
@@ -17,7 +19,8 @@ public class ZarzadcaWoluminu {
 
     private final MongoClient mongoClient;
     private final MongoDatabase database;
-    private final WoluminMongoRepository repozytorium;
+    private final WoluminRepository repozytorium;
+
 
 
     public ZarzadcaWoluminu() {
@@ -34,30 +37,24 @@ public class ZarzadcaWoluminu {
 
         this.mongoClient = MongoClients.create(settings);
         this.database = mongoClient.getDatabase("BookSystem");
-        this.repozytorium = new WoluminMongoRepository(database.getCollection("woluminy", Document.class));
+        WoluminRepository mongoRepo = new WoluminMongoRepository(database.getCollection("woluminy", Document.class));
+        this.repozytorium = new WoluminCacheRepository(mongoRepo);
     }
 
     public void dodajWolumin(Wolumin wolumin) {
-        Document doc = WoluminMapper.toDocument(wolumin);
-        repozytorium.dodaj(doc);
+        repozytorium.dodajWolumin(wolumin);
     }
 
     public Wolumin znajdzWolumin(ObjectId id) {
-        Document doc = database.getCollection("woluminy").find(new Document("_id", id)).first();
-        if (doc != null) {
-            return WoluminMapper.fromDocument(doc);
-        } else {
-            return null;
-        }
+        return repozytorium.znajdzWolumin(id);
     }
 
     public void zaktualizujWolumin(ObjectId id, Wolumin updatedWolumin) {
-        Document doc = WoluminMapper.toDocument(updatedWolumin);
-        repozytorium.zaktualizuj(id, doc);
+        repozytorium.zaktualizujWolumin(id, updatedWolumin);
     }
 
     public void usunWolumin(ObjectId id) {
-        repozytorium.usun(id);
+        repozytorium.usunWolumin(id);
     }
 
     public void zamknijPolaczenie() {

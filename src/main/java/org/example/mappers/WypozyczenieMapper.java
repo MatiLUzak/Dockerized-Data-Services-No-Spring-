@@ -10,7 +10,9 @@ public class WypozyczenieMapper {
 
     public static Document toDocument(Wypozyczenie wypozyczenie) {
         Document doc = new Document();
-        doc.append("_id", wypozyczenie.getId());
+        if (wypozyczenie.getId() != null) {
+            doc.append("_id", wypozyczenie.getId());
+        }
         doc.append("wypozyczajacyId", wypozyczenie.getWypozyczajacy().getId());
         doc.append("woluminId", wypozyczenie.getWolumin().getId());
         doc.append("dataOd", wypozyczenie.getDataOd());

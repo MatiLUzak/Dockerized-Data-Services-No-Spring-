@@ -1,6 +1,7 @@
 package org.example.databaserepository;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.InsertOneResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -11,8 +12,8 @@ public abstract class MongoRepository<T> {
         this.collection = collection;
     }
 
-    public void dodaj(Document entity) {
-        collection.insertOne(entity);
+    public InsertOneResult dodaj(Document entity) {
+        return collection.insertOne(entity);
     }
 
     public Document znajdzPoId(ObjectId id) {

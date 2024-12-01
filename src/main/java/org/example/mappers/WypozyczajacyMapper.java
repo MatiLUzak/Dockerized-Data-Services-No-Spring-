@@ -11,7 +11,9 @@ public class WypozyczajacyMapper {
 
     public static Document toDocument(Wypozyczajacy wypozyczajacy) {
         Document doc = new Document();
-        doc.append("_id", wypozyczajacy.getId());
+        if (wypozyczajacy.getId() != null) {
+            doc.append("_id", wypozyczajacy.getId());
+        }
         doc.append("nazwa", wypozyczajacy.getNazwa());
         doc.append("adres", wypozyczajacy.getAdres());
         doc.append("dataUr", wypozyczajacy.getDataUr());

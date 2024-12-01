@@ -36,8 +36,7 @@ public class ZarzadcaWypozyczajacyMongo {
     }
 
     public void dodajWypozyczajacy(Wypozyczajacy wypozyczajacy) {
-        Document doc = WypozyczajacyMapper.toDocument(wypozyczajacy);
-        repozytorium.dodaj(doc);
+        repozytorium.dodajWypozyczajacy(wypozyczajacy);
     }
 
     public Wypozyczajacy znajdzWypozyczajacy(ObjectId id) {
