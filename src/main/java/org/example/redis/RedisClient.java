@@ -1,34 +1,19 @@
 package org.example.redis;
 
-import redis.clients.jedis.JedisPooled;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import redis.clients.jedis.Jedis;
 
 public class RedisClient {
 
-    private static JedisPooled jedis;
     private static String host;
     private static int port;
 
     static {
-        try (InputStream input = RedisClient.class.getClassLoader().getResourceAsStream("application.properties")) {
-            Properties prop = new Properties();
-            prop.load(input);
-            host = prop.getProperty("redis.host");
-            port = Integer.parseInt(prop.getProperty("redis.port"));
-            jedis = new JedisPooled(host, port);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            host = "localhost";
-            port = 6379;
-            jedis = new JedisPooled(host, port);
-        }
+        host = "localhost"; // Możesz wczytać z pliku konfiguracyjnego, jeśli chcesz
+        port = 6379;
     }
 
-    public static JedisPooled getJedis() {
-        return jedis;
+    public static Jedis getJedis() {
+        return new Jedis(host, port);
     }
 
     public static String getHost() {
@@ -39,4 +24,3 @@ public class RedisClient {
         return port;
     }
 }
-
