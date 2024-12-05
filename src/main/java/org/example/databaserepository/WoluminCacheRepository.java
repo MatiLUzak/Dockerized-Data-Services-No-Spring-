@@ -22,12 +22,8 @@ public class WoluminCacheRepository implements WoluminRepository {
         repozytorium.dodajWolumin(wolumin);
         String key = "wolumin:" + wolumin.getId().toHexString();
 
-        // Tworzymy obiekt JSON, który będzie zawierał dwa pola:
-        // "className" - pełna nazwa klasy obiektu (np. "org.example.model.Beletrystyka")
-        // "data" - zserializowany obiekt wolumin
         String className = wolumin.getClass().getName();
 
-        // Tworzymy obiekt JSON "wrapper"
         com.google.gson.JsonObject wrapper = new com.google.gson.JsonObject();
         wrapper.addProperty("className", className);
         wrapper.add("data", gson.toJsonTree(wolumin));
