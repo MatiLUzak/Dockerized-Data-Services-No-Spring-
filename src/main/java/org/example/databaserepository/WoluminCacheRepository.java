@@ -67,7 +67,6 @@ public class WoluminCacheRepository implements WoluminRepository {
     @Override
     public void deleteMany(Document filter) {
         repozytorium.deleteMany(filter);
-        // Jeśli to konieczne, usuń odpowiednie klucze z cache'a
     }
 
     public void clearCache() {
