@@ -1,6 +1,7 @@
 package org.example.databaserepository;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.example.model.Wolumin;
@@ -34,17 +35,21 @@ class WoluminCacheRepositoryTest {
         Wolumin wolumin = new Wolumin("Wydawnictwo ABC", "Polski", "Tytuł XYZ");
         wolumin.setId(id);
 
-
         cacheRepository.dodajWolumin(wolumin);
 
         String key = "wolumin:" + id.toHexString();
         try (Jedis jedis = RedisClient.getJedis()) {
             String cachedData = jedis.get(key);
             assertNotNull(cachedData, "Dane woluminu nie zostały zapisane w cache'u.");
-            Wolumin cachedWolumin = gson.fromJson(cachedData, Wolumin.class);
+
+            com.google.gson.JsonObject wrapper = gson.fromJson(cachedData, com.google.gson.JsonObject.class);
+            com.google.gson.JsonElement data = wrapper.get("data");
+            Wolumin cachedWolumin = gson.fromJson(data, Wolumin.class);
+
             assertEquals(wolumin.getTytul(), cachedWolumin.getTytul(), "Tytuł woluminu w cache'u nie zgadza się.");
         }
     }
+
 
     @Test
     void testZnajdzWolumin_CacheHit() {
@@ -54,7 +59,13 @@ class WoluminCacheRepositoryTest {
 
         String key = "wolumin:" + id.toHexString();
         try (Jedis jedis = RedisClient.getJedis()) {
-            jedis.setex(key, 86400, gson.toJson(wolumin));
+            String className = wolumin.getClass().getName();
+            JsonObject wrapper = new JsonObject();
+            wrapper.addProperty("className", className);
+            wrapper.add("data", gson.toJsonTree(wolumin));
+
+            jedis.setex(key, 86400, gson.toJson(wrapper));
+
         }
 
         Wolumin retrieved = cacheRepository.znajdzWolumin(id);
