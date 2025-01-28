@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "WypozyczenieEvent",
+  "namespace": "kafka",
+  "fields": [
+    {"name": "idWypozyczenia",        "type": ["null", "string"]},
+    {"name": "nazwaWypozyczalni",     "type": ["null", "string"]},
+    {"name": "nazwaWypozyczajacego",  "type": ["null", "string"]},
+    {"name": "tytulWoluminu",         "type": ["null", "string"]},
+    {"name": "dataOd",               "type": ["null", "long"]},
+    {"name": "dataDo",               "type": ["null", "long"]}
+  ]
+}

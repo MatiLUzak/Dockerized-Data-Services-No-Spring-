@@ -6,9 +6,11 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import kafka.WypozyczenieEvent;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.example.databaserepository.WypozyczenieMongoRepository;
+import org.example.kafka.AvroWypozyczenieProducer;
 import org.example.mappers.WypozyczenieMapper;
 import org.example.model.Wypozyczenie;
 import org.example.model.Wypozyczajacy;
@@ -21,9 +23,9 @@ public class ZarzadcaWypozyczeniaMongo {
     private final ZarzadcaWypozyczajacyMongo wypozyczajacyZarzadca;
     private final ZarzadcaWoluminu woluminZarzadca;
     private final WypozyczenieMongoRepository repozytorium;
+    private final AvroWypozyczenieProducer producer;
 
     public ZarzadcaWypozyczeniaMongo(ZarzadcaWypozyczajacyMongo wypozyczajacyZarzadca, ZarzadcaWoluminu woluminZarzadca) {
-        // Konfiguracja połączenia (bez PojoCodecProvider)
         MongoCredential credentials = MongoCredential.createCredential(
                 "admin", "admin", "adminpassword".toCharArray()
         );
@@ -40,7 +42,6 @@ public class ZarzadcaWypozyczeniaMongo {
         this.woluminZarzadca = woluminZarzadca;
         this.repozytorium = new WypozyczenieMongoRepository(database.getCollection("wypozyczenia", Document.class));
 
-        // Tworzenie indeksu
         boolean indexExists = false;
         for (Document indexInfo : database.getCollection("wypozyczenia").listIndexes()) {
             if ("woluminId_1".equals(indexInfo.getString("name"))) {
@@ -55,6 +56,7 @@ public class ZarzadcaWypozyczeniaMongo {
                     new IndexOptions().unique(true).partialFilterExpression(new Document("dataDo", null))
             );
         }
+        this.producer = new AvroWypozyczenieProducer();
     }
 
     public void dodajWypozyczenie(Wypozyczenie wypozyczenie) {
@@ -68,6 +70,20 @@ public class ZarzadcaWypozyczeniaMongo {
                 throw e;
             }
         }
+        WypozyczenieEvent event = WypozyczenieEvent.newBuilder()
+                .setIdWypozyczenia(wypozyczenie.getId() != null ? wypozyczenie.getId().toHexString() : null)
+                .setNazwaWypozyczalni("MojaSuperWypozyczalniaX")
+                .setNazwaWypozyczajacego(
+                        wypozyczenie.getWypozyczajacy() != null ? wypozyczenie.getWypozyczajacy().getNazwa() : null
+                )
+                .setTytulWoluminu(
+                        wypozyczenie.getWolumin() != null ? wypozyczenie.getWolumin().getTytul() : null
+                )
+                .setDataOd(wypozyczenie.getDataOd()!=null ? wypozyczenie.getDataOd().getTime() : null)
+                .setDataDo(wypozyczenie.getDataDo()!=null ? wypozyczenie.getDataDo().getTime() : null)
+                .build();
+
+        producer.sendWypozyczenie(event);
     }
 
     public Wypozyczenie znajdzWypozyczenie(ObjectId id) {
@@ -95,6 +111,7 @@ public class ZarzadcaWypozyczeniaMongo {
     }
 
     public void zamknijPolaczenie() {
+        producer.close();
         mongoClient.close();
     }
 
