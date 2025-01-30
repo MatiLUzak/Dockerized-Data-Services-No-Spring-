@@ -10,6 +10,7 @@ import com.mongodb.client.MongoCollection;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Properties;
 
 public class AvroWypozyczenieConsumer {
@@ -45,9 +46,10 @@ public class AvroWypozyczenieConsumer {
 
                         Document doc = new Document()
                                 .append("idWypozyczenia", event.getIdWypozyczenia() == null ? null : event.getIdWypozyczenia().toString())
+                                .append("nazwaWypozyczalni", event.getNazwaWypozyczalni() == null ? null : event.getNazwaWypozyczalni().toString())
                                 .append("nazwaWypozyczajacego", event.getNazwaWypozyczajacego() == null ? null : event.getNazwaWypozyczajacego().toString())
                                 .append("tytulWoluminu", event.getTytulWoluminu() == null ? null : event.getTytulWoluminu().toString())
-                                .append("dataOd", event.getDataOd())
+                                .append("dataOd", new Date(event.getDataOd()))
                                 .append("dataDo", event.getDataDo());
                         collection.insertOne(doc);
 
