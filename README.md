@@ -8,7 +8,7 @@
 
 Aby uruchomić projekt, potrzebujesz:
 
-- **Java 11** lub nowsza
+- **Java 17** lub nowsza
 - **Maven** do zarządzania zależnościami
 - **Docker + Docker Compose** (do uruchomienia usług MongoDB, Redis, Kafka)
 
@@ -88,7 +88,7 @@ nbdMongoDB/
 
 ## ✍️ Autor
 
-- **MatiLUzak** – [Twój profil GitHub](https://github.com/MatiLUzak)
+- **MatiLUzak** – [GitHub](https://github.com/MatiLUzak)
 
 ## 📜 Licencja
 
